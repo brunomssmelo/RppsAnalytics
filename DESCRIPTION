@@ -1,0 +1,12 @@
+Package: RppsAnalytics
+Type: Package
+Title: Analise de Desempenho e Conformidade dos Investimentos de um RPPS
+Version: 0.1.0
+Author: Bruno M. S. S. Melo
+Maintainer: Bruno M. S. S. Melo <ctbrunomelo@gmail.com>
+Description: Este pacote disponibiliza funcoes que tem por objetivo
+             efetuar analises de desempenho e conformidade da carteira de investimentos em fundos dos RPPS.
+Imports: data.table, lubridate, PerformanceAnalytics, xts, zoo
+License: GPL-3
+LazyData: TRUE
+RoxygenNote: 5.0.1

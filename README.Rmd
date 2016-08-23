@@ -1,0 +1,97 @@
+---
+title: "RppsAnalytics"
+output: github_document
+---
+
+Este pacote disponibiliza funções que tem por objetivo efetuar análises de desempenho e de conformidade na carteira de investimentos em fundos dos RPPS.
+
+## Dependências
+
+O pacote possui as seguintes dependências:
+
+* data.table - https://cran.r-project.org/web/packages/data.table/
+* zoo - https://cran.r-project.org/web/packages/zoo/
+* PerformanceAnalytics - https://cran.r-project.org/web/packages/PerformanceAnalytics/
+
+## Pacotes relacionados
+
+* RppsWrangler - https://github.com/brunomssmelo/RppsWrangler
+* RcvmWrangler - https://github.com/brunomssmelo/RcvmWrangler
+
+## Exemplo
+
+A seguir oferecemos um exemplo de uso do pacote, com as funções já implementadas.
+
+```{r}
+library(xlsx)
+library(data.table)
+```
+
+```{r}
+# Carrega serie historica do IPCA
+dtIpca <- xlsx::read.xlsx(file = "./data/ipca_201605.xls",
+                          sheetIndex = 2)
+```
+
+```{r}
+# Carrega pasta de DAIRs
+dtDair <- RppsWrangler::mtpsImportaDair(caminho = "./data/TCE/DAIR/RIO DE JANEIRO",
+                                        tipo = "dir.pdf")
+```
+
+```{r}
+# Extrai lista de todos os fundos encontrados nos DAIR
+fundos <- unique(dtDair$CNPJ_FUNDO)
+```
+
+```{r}
+# Carrega informacoes dos fundos a partir do arquivo anual dos informes diários dos fundos registrados na CVM
+# O pacote RcvmWrangler [Rcvmwrangler]{https://github.com/brunomssmelo/RcvmWrangler} permite a obtencao dos mesmos.
+dtCvm <- RcvmWrangler::cvmCarregaArqAnualInformes(nomeArq = "./data/cvm.zip", listaFundos = fundos)
+```
+
+```{r}
+# Carrega a serie historica da "LFT 2021" (ela sera utilizada como taxa livre de risco)
+# [Series Historicas Titulos do Tesouro]{http://www.tesourotransparente.gov.br/ckan/dataset/taxas-dos-titulos-ofertados-pelo-tesouro-direto}
+dtLft <- read.xlsx(file = "./data/LFT 2021.xlsx",
+                   sheetIndex = 1,
+                   encoding = 'UTF8')
+dtLivreRisco <- dtLft[,c("Data.Base", "PU.Base.Manha")]
+names(dtLivreRisco) <- c("DATA", "VALOR")
+dtLivreRisco$VALOR <- as.numeric(gsub(x = as.character(dtLivreRisco$VALOR),
+                                      pattern = ",", replacement = "."))
+```
+
+```{r}
+# Calcula, a partir dos dados contidos nos DAIR e dos informes diarios dos fundos disponibilizados pela CVM,
+# o retorno da carteira de investimentos do RPPS.
+rtRpps <- RppsAnalytics::rppsDesempenho(dtCvm, dtDair)
+
+# Acopla um indice de referencia (IPCA) na serie temporal de retornos
+rtRpps <- RppsAnalytics::rppsAcoplaReferencia(rtRpps, dtIpca, "IPCA", 0, "ANO")
+
+# Acopla um indice de referencia (IPCA + %5 a.a) na serie temporal de retornos
+rtRpps <- RppsAnalytics::rppsAcoplaReferencia(rtRpps, dtIpca, "IPCA + 5% a.a.", 5, "ANO")
+
+# Acopla a taxa livre de risco a serie temporal de retornos.
+rtRpps <- RppsAnalytics::rppsAcoplaTaxaLivreRisco(rtRpps, dtLivreRisco, "LFT 2021")
+```
+
+```{r}
+# Extrai de rtRpps a coluna relativa aos retornos da carteira do RPPS
+colRpps <- attr(rtRpps, which = "col_rpps")
+
+# Extrai de rtRpps a coluna relativa a Taxa Livre de Risco
+colLivreRisco <- attr(rtRpps, which = "col_taxa_livre_risco")
+
+# Extrai de rtRpps as colunas relativas aos indices de referencia
+colIndicesRef <- attr(rtRpps, which = "col_indices_ref")
+```
+
+```{r}
+# Plota graficos exibindo:
+# 1 - os retornos cumulativos dos ativos selecionados;
+# 2 - os retornos mensais da carteira do RPPS;e
+# 3 - os "drawdowns" da carteira do RPPS.
+PerformanceAnalytics::charts.PerformanceSummary(rtRpps[, c(colRpps, colLivreRisco, colIndicesRef)])
+```
