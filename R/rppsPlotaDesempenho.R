@@ -21,7 +21,7 @@ rppsPlotaDesempenho <- function(rtRpps) {
 
     #extract legend
     #https://github.com/hadley/ggplot2/wiki/Share-a-legend-between-two-ggplot2-graphs
-    g_legend<-function(a.gplot){
+    g_legend <- function(a.gplot){
       tmp <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(a.gplot))
       leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
       legend <- tmp$grobs[[leg]]

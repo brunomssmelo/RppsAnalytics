@@ -26,24 +26,22 @@
 #' @export
 rppsAcoplaTaxaLivreRisco <- function(retornos, taxa, nome.taxa) {
 
-  require(xts)
-
   rtData <- retornos
 
   # Taxa livre de risco
   dtLivreRisco <- taxa[order(taxa$DATA),]
   dtLivreRisco <- dtLivreRisco[which(dtLivreRisco$DATA >= min(zoo::index(retornos))),]
-  tsTlr <- xts(x = dtLivreRisco$VALOR, order.by = dtLivreRisco$DATA)
-  tsTlr <- na.spline(tsTlr)
-  tsTlr <- to.period(tsTlr, OHLC = F, period = 'months')
+  tsTlr <- xts::xts(x = dtLivreRisco$VALOR, order.by = dtLivreRisco$DATA)
+  tsTlr <- zoo::na.spline(tsTlr)
+  tsTlr <- xts::to.period(tsTlr, OHLC = F, period = 'months')
 
   retTlr <- PerformanceAnalytics::Return.calculate(tsTlr, method="discrete")
 
   rtData <- cbind(rtData, retTlr)
   names(rtData)[ncol(rtData)] <- nome.taxa
 
-  rtData <- na.locf(rtData, maxgap = Inf)
-  rtData <- na.locf(rtData, maxgap = Inf, fromLast = T)
+  rtData <- zoo::na.locf(rtData, maxgap = Inf)
+  rtData <- zoo::na.locf(rtData, maxgap = Inf, fromLast = T)
 
   # zera o primeiro elemento da serie
   rtData[1,ncol(rtData)] <- 0

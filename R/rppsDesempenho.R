@@ -24,8 +24,6 @@ rppsDesempenho <- function(dtCvm, dtDair) {
 
   library(data.table)
 
-
-
   dtDair <- data.table::data.table(dtDair)
   dtCvm <- data.table::data.table(dtCvm)
 

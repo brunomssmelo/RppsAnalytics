@@ -31,8 +31,6 @@
 #' @export
 rppsAcoplaReferencia <- function(retornos, referencia, nome.ref, taxa, periodo.taxa) {
 
-  require(xts)
-
   names(referencia) <- c("ANO", "MES", "VALOR")
 
   # funcao que recebe uma linha da serie historica do indice de referencia bem como a coluna que

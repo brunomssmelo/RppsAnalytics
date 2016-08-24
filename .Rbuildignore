@@ -1,2 +1,6 @@
+.gitignore
+.gitattributes
 ^.*\.Rproj$
 ^\.Rproj\.user$
+data_raw/
+data_raw/TCE
