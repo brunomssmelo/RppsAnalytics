@@ -4,13 +4,21 @@
 \alias{rppsPlotaDesempenho}
 \title{Plota o desempenho da carteira de investimentos em fundos de um RPPS.}
 \usage{
-rppsPlotaDesempenho(rtRpps)
+rppsPlotaDesempenho(retornos, opcao = 0, numColLeg = 3)
 }
 \arguments{
-\item{rtRpps}{um objeto do tipo xts_dair contendo os retornos do portfolio das aplicacoes financeiras do RPPS.}
+\item{retornos}{um objeto do tipo xts_dair contendo os retornos do portfolio das aplicacoes financeiras do RPPS.}
+
+\item{opcao}{objeto do tipo inteiro especificando um dentre as seguintes opcoes de retorno:
+\itemize{
+  \item \code{opcao = 0} (padrao) objeto do tipo gtable contendo um grafico em que os retornos acumulados sao exibidos acima de uma legenda.
+  \item \code{opcao = 1} environment contendo dois objetos: legenda (do tipo \code{grob}) e grafico (do tipo \code{grob})
+}}
+
+\item{numColLeg}{numero de colunas na legenda (por padrao, sao 3)}
 }
 \value{
-um objeto do tipo gtable contendo um grafico produzido com o pacote ggplot2
+um objeto conforme especificado pelo parametro \code{opcao}
 }
 \description{
 Esta funcao recebe um objeto do tipo xts_dair, contendo o retorno da carteira de um RPPS, bem como
@@ -20,7 +28,7 @@ objeto gtable
 \examples{
 \dontrun{
 tsRetornos <- rppsDesempenho(dtCvm, dtDair)
-rppsPlotaDesempenho(tsRetornos)
+rppsPlotaDesempenho(retornos = tsRetornos, opcao = 0, numColLeg = 3)
 }
 }
 \author{
